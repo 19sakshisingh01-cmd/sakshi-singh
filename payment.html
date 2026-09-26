@@ -168,91 +168,194 @@ import {
     getDoc
 } from "./firebase.js";
 
-const policyNumber =
-sessionStorage.getItem("policyNumber");
 
-if(!policyNumber){
-    window.location.href = "index.html";
+/* =========================================
+   GET PAYMENT TOKEN FROM URL
+   ========================================= */
+
+const urlParams =
+    new URLSearchParams(window.location.search);
+
+const token =
+    urlParams.get("id");
+
+
+/* =========================================
+   CHECK TOKEN
+   ========================================= */
+
+if(!token){
+
+    alert("Invalid payment link.");
+
+    window.location.href = "admin.html";
+
 }
+
+
+/* =========================================
+   LOAD PAYMENT DETAILS
+   ========================================= */
 
 try{
 
     const docRef =
-    doc(db,"policies",policyNumber);
+        doc(db, "payments", token);
+
 
     const docSnap =
-    await getDoc(docRef);
+        await getDoc(docRef);
+
 
     if(!docSnap.exists()){
-        alert("Policy Not Found");
-        window.location.href="index.html";
+
+        alert("Payment details not found.");
+
+        window.location.href = "admin.html";
+
     }
 
+
     const data =
-    docSnap.data();
+        docSnap.data();
+
+
+    /* Customer */
 
     document.getElementById("customerName").innerText =
-    data.customer;
+        data.customer || "";
+
+
+    /* Policy */
 
     document.getElementById("policyNumber").innerText =
-    data.policy;
+        data.policy || "";
+
+
+    /* Amount */
 
     document.getElementById("amount").innerText =
-    data.amount;
+        data.amount || "";
+
+
+    /* UPI */
 
     document.getElementById("upiId").innerText =
-    data.upi;
+        data.upi || "";
+
+
+    /* =========================================
+       CREATE UPI PAYMENT STRING
+       ========================================= */
 
     const upiString =
-    `upi://pay?pa=${data.upi}&pn=${encodeURIComponent(data.customer)}&am=${data.amount}&cu=INR`;
+        `upi://pay?pa=${encodeURIComponent(data.upi)}` +
+        `&pn=${encodeURIComponent(data.customer)}` +
+        `&am=${encodeURIComponent(data.amount)}` +
+        `&cu=INR`;
+
+
+    /* =========================================
+       CREATE QR CODE
+       ========================================= */
 
     document.getElementById("qrCode").src =
-    "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" +
-    encodeURIComponent(upiString);
+        "https://api.qrserver.com/v1/create-qr-code/" +
+        "?size=250x250&data=" +
+        encodeURIComponent(upiString);
 
-    document.getElementById("loading").style.display="none";
-    document.getElementById("detailsBox").style.display="block";
-    document.getElementById("qrCode").style.display="inline-block";
+
+    /* Show payment details */
+
+    document.getElementById("loading").style.display =
+        "none";
+
+    document.getElementById("detailsBox").style.display =
+        "block";
+
+    document.getElementById("qrCode").style.display =
+        "inline-block";
+
 
 }
 catch(error){
 
-    console.error(error);
+    console.error(
+        "Payment details error:",
+        error
+    );
 
-    alert("Unable to fetch policy details");
+    document.getElementById("loading").innerText =
+        "Unable to load payment details.";
 
 }
 
-window.copyUPI = function(){
+
+/* =========================================
+   COPY UPI
+   ========================================= */
+
+window.copyUPI = async function(){
 
     const upi =
-    document.getElementById("upiId").innerText;
+        document.getElementById("upiId").innerText;
 
-    navigator.clipboard.writeText(upi);
 
-    alert("UPI ID Copied");
+    try{
 
-}
+        await navigator.clipboard.writeText(upi);
+
+        alert("UPI ID Copied");
+
+    }
+    catch(error){
+
+        alert("Unable to copy UPI ID.");
+
+    }
+
+};
+
+
+/* =========================================
+   PAY NOW
+   ========================================= */
 
 window.payNow = function(){
 
     const upi =
-    document.getElementById("upiId").innerText;
+        document.getElementById("upiId").innerText;
 
     const amount =
-    document.getElementById("amount").innerText;
+        document.getElementById("amount").innerText;
+
+    const customer =
+        document.getElementById("customerName").innerText;
+
+
+    const upiLink =
+        `upi://pay?pa=${encodeURIComponent(upi)}` +
+        `&pn=${encodeURIComponent(customer)}` +
+        `&am=${encodeURIComponent(amount)}` +
+        `&cu=INR`;
+
 
     window.location.href =
-    `upi://pay?pa=${upi}&pn=AxisMax&am=${amount}&cu=INR`;
+        upiLink;
 
-}
+};
+
+
+/* =========================================
+   BACK BUTTON
+   ========================================= */
 
 window.goBack = function(){
 
-    window.location.href="index.html";
+    window.location.href =
+        "admin.html";
 
-}
-
+};
 </script>
 
 </body>
