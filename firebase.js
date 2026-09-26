@@ -8,14 +8,18 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDt9MZ-5HbMdhxqDiX-ck-1CwjH_CpmLgM",
-  authDomain: "axis--max-insurance.firebaseapp.com",
-  projectId: "axis--max-insurance",
-  storageBucket: "axis--max-insurance.firebasestorage.app",
-  messagingSenderId: "983991986405",
-  appId: "1:983991986405:web:5ebfb45ca1f7b92ceb0c0c"
+  apiKey: "AIzaSyBTo6ztc3Amd69CSb0ruxKpuwciQXOOgZY",
+  authDomain: "hdfc-f6e10.firebaseapp.com",
+  projectId: "hdfc-f6e10",
+  storageBucket: "hdfc-f6e10.firebasestorage.app",
+  messagingSenderId: "898115663077",
+  appId: "1:898115663077:web:22eeecd651307ab80c100c",
+  measurementId: "G-2B6ER6MXTP"
 };
 
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const analytics = getAnalytics(app);
 const app = initializeApp(firebaseConfig);
 
 const db = getFirestore(app);
