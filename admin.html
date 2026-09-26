@@ -161,59 +161,127 @@ Please note: HDFC shall not be liable to pay any interest on the said amount.
 
 import {
     db,
-    doc,
-    getDoc
+    collection,
+    query,
+    where,
+    getDocs
 } from "./firebase.js";
+
 
 window.proceed = async function(){
 
     const policy =
-    document.getElementById("policyNumber").value.trim();
+        document.getElementById("policyNumber").value.trim();
+
+    const btn =
+        document.querySelector(".proceed-btn");
+
 
     if(!/^\d{8}$/.test(policy)){
+
         alert("Please enter a valid 8 digit policy number");
         return;
-    }
-const btn = document.querySelector(".proceed-btn");
 
-btn.disabled = true;
-btn.innerText = "Please Wait...";
+    }
+
+
+    btn.disabled = true;
+    btn.innerText = "Please Wait...";
+
+
     try{
 
-        const docRef =
-        doc(db, "payments", token);
+        /*
+        Search the payments collection
+        using the policy number stored
+        inside the document.
+        */
 
-        const docSnap =
-        await getDoc(docRef);
+        const paymentsRef =
+            collection(db, "payments");
 
-        if(!docSnap.exists()){
+
+        const q =
+            query(
+                paymentsRef,
+                where("policy", "==", policy)
+            );
+
+
+        const querySnapshot =
+            await getDocs(q);
+
+
+        if(querySnapshot.empty){
 
             alert("Invalid Policy Number");
+
+            btn.disabled = false;
+            btn.innerText = "Proceed";
+
             return;
 
         }
+
+
+        /*
+        Get the matching random token
+        */
+
+        const paymentDoc =
+            querySnapshot.docs[0];
+
+
+        const token =
+            paymentDoc.id;
+
+
+        /*
+        Save the token so payment.html
+        can use it.
+        */
+
+        sessionStorage.setItem(
+            "paymentToken",
+            token
+        );
+
 
         sessionStorage.setItem(
             "policyNumber",
             policy
         );
-btn.disabled = false;
-btn.innerText = "Proceed";
 
-        window.location.href ="payment.html";
+
+        /*
+        Open payment page
+        */
+
+        window.location.href =
+            "payment.html?id=" +
+            encodeURIComponent(token);
 
 
     }
     catch(error){
-btn.disabled = false;
-btn.innerText = "Proceed";
 
-        console.error(error);
-        alert("Unable to verify policy");
+        console.error(
+            "Policy verification error:",
+            error
+        );
+
+        alert(
+            "Unable to verify policy: " +
+            error.message
+        );
+
+
+        btn.disabled = false;
+        btn.innerText = "Proceed";
 
     }
 
-}
+};
 
 </script>
 
