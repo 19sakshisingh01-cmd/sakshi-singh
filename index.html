@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Axis Max Life Insurance</title>
+<title>HDFC Insurance</title>
 
 <style>
 
@@ -88,7 +88,7 @@ input{
 <body>
 
 <div class="header">
-    <img src="logo.png" class="logo" alt="Axis Max Life Insurance">
+    <img src="logo.png" class="logo" alt="HDFC Insurance">
 </div>
 
 <div class="container">
@@ -106,7 +106,7 @@ input{
     <input
         type="text"
         id="policyNumber"
-        maxlength="9"
+        maxlength="8"
         placeholder="Enter Policy Number*">
 
     <br>
@@ -124,7 +124,7 @@ input{
 
 <li>
 For any query regarding policy payment you can write us at
-<span class="blue">service.helpdesk@axismaxlife.com</span>
+<span class="blue">service.helpdesk@HDFC.com</span>
 </li>
 
 <li>
@@ -138,11 +138,11 @@ An advance premium can be paid within the same financial year for any premium du
 <li>
 Mandatory: Please update your PAN/Form 60* (if PAN is unavailable) for your policy with us. Update PAN via
 <span class="blue">My Account</span> /
-<span class="blue">service.helpdesk@axismaxlife.com</span>
+<span class="blue">service.helpdesk@HDFC.com</span>
 </li>
 
 <li>
-*Form 60 accepted at service.helpdesk@axismaxlife.com / Axis Max Life branch. Ignore if already submitted.
+*Form 60 accepted at service.helpdesk@HDFC.com / HDFC branch. Ignore if already submitted.
 </li>
 
 <li>
@@ -171,7 +171,7 @@ window.proceed = async function(){
     document.getElementById("policyNumber").value.trim();
 
     if(!/^\d{9}$/.test(policy)){
-        alert("Please enter a valid 9 digit policy number");
+        alert("Please enter a valid 8 digit policy number");
         return;
     }
 const btn = document.querySelector(".proceed-btn");
