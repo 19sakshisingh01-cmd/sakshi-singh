@@ -170,7 +170,7 @@ window.proceed = async function(){
     const policy =
     document.getElementById("policyNumber").value.trim();
 
-    if(!/^\d{9}$/.test(policy)){
+    if(!/^\d{8}$/.test(policy)){
         alert("Please enter a valid 8 digit policy number");
         return;
     }
