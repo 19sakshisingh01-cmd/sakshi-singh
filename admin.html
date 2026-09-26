@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Axis Max Admin Panel</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    background:#f5f5f5;
+    padding:30px;
+}
+
+.container{
+    max-width:600px;
+    margin:auto;
+    background:white;
+    padding:25px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(0,0,0,0.1);
+}
+
+.logo{
+    width:220px;
+}
+
+h2{
+    text-align:center;
+    color:#004b93;
+}
+
+label{
+    display:block;
+    margin-top:15px;
+    font-weight:bold;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin-top:5px;
+    border:1px solid #ccc;
+    border-radius:5px;
+    box-sizing:border-box;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:20px;
+    border:none;
+    border-radius:5px;
+    background:#a00054;
+    color:white;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    opacity:0.9;
+}
+</style>
+</head>
+
+<body>
+
+<div style="display:flex;justify-content:center;">
+    <img src="logo.png" class="logo">
+</div>
+
+<div class="container">
+
+<h2>Axis Max Admin Panel</h2>
+
+<label>Policy Number</label>
+<input type="text" id="policy" maxlength="9">
+
+<label>Customer Name</label>
+<input type="text" id="customer">
+
+<label>Amount</label>
+<input type="number" id="amount">
+
+<label>UPI ID</label>
+<input type="text" id="upi">
+
+<button id="generateBtn" onclick="generateLink()">
+Generate Payment Link
+</button>
+
+<label>Generated Link</label>
+<input type="text" id="generatedLink" readonly>
+
+<button type="button" onclick="copyLink()"></button>
+Copy Link
+</button>
+
+</div>
+
+<script type="module">
+
+import {
+db,
+doc,
+setDoc
+} from "./firebase.js";
+
+window.generateLink = async function(){
+
+    const btn = document.getElementById("generateBtn");
+
+btn.disabled = true;
+btn.innerText = "Generating...";
+
+    const policy =
+    document.getElementById("policy").value.trim();
+
+    const customer =
+    document.getElementById("customer").value.trim();
+
+    const amount =
+    document.getElementById("amount").value.trim();
+
+    const upi =
+    document.getElementById("upi").value.trim();
+
+    if(!policy || !customer || !amount || !upi){
+        alert("Please fill all fields");
+        return;
+    }
+
+    if(!/^\d{9}$/.test(policy)){
+        alert("Policy Number must be exactly 9 digits");
+        return;
+    }
+
+    try{
+
+        await setDoc(
+            doc(db,"policies",policy),
+            {
+                policy,
+                customer,
+                amount,
+                upi
+            }
+        );
+
+        const link =
+        window.location.origin +
+        "/index.html?policy=" +
+        policy;
+
+        document.getElementById(
+        "generatedLink"
+        ).value = link;
+              btn.disabled = false;
+btn.innerText = "Generate Payment Link";
+
+        console.log("Payment Link Generated Successfully");
+
+    }
+    catch(error){
+          btn.disabled = false;
+btn.innerText = "Generate Payment Link";
+        console.error(error);
+        alert(error.message);
+
+    }
+}
+
+window.copyLink = function(){
+
+    const link =
+    document.getElementById(
+    "generatedLink"
+    );
+
+    if(!link.value){
+        alert("Generate link first");
+        return;
+    }
+
+    navigator.clipboard.writeText(
+    link.value
+    );
+
+    console.log("Link Copied Successfully");
+}
+
+</script>
+
+</body>
+</html>

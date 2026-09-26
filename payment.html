@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Payment Details</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:Arial,sans-serif;
+}
+
+body{
+    background:#f5f5f5;
+}
+
+.header{
+    background:white;
+    padding:20px;
+    text-align:center;
+    border-bottom:1px solid #ddd;
+}
+
+.logo{
+    width:240px;
+}
+
+.container{
+    max-width:700px;
+    margin:30px auto;
+    text-align:center;
+}
+
+.verified{
+    font-size:20px;
+    font-weight:bold;
+    margin-bottom:25px;
+}
+
+.qr{
+    width:220px;
+    height:220px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    background:white;
+    padding:10px;
+}
+
+.details{
+    margin-top:25px;
+    line-height:2.2;
+    font-size:22px;
+}
+
+.copy-btn{
+    padding:8px 15px;
+    background:#004b93;
+    color:white;
+    border:none;
+    border-radius:5px;
+    cursor:pointer;
+    margin-left:10px;
+}
+
+.pay-btn{
+    width:320px;
+    padding:15px;
+    margin-top:25px;
+    border:none;
+    border-radius:6px;
+    background:#a00054;
+    color:white;
+    font-size:22px;
+    cursor:pointer;
+}
+
+.back-btn{
+    width:320px;
+    padding:15px;
+    margin-top:15px;
+    border:2px solid #004b93;
+    border-radius:6px;
+    background:white;
+    color:#004b93;
+    font-size:22px;
+    cursor:pointer;
+}
+
+.label{
+    font-weight:bold;
+}
+
+.loading{
+    font-size:18px;
+    margin-top:20px;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <img src="logo.png" class="logo">
+</div>
+
+<div class="container">
+
+    <div class="verified">
+        ✔ Verified Business: Axis Max Life Insurance
+    </div>
+
+    <div id="loading" class="loading">
+        Loading Payment Details...
+    </div>
+
+    <img id="qrCode" class="qr" alt="QR Code" style="display:none;">
+
+    <div class="details" id="detailsBox" style="display:none;">
+
+        <div>
+            <span class="label">Customer:</span>
+            <span id="customerName"></span>
+        </div>
+
+        <div>
+            <span class="label">UPI ID:</span>
+            <span id="upiId"></span>
+
+            <button class="copy-btn" type="button" onclick="copyUPI()">
+                Copy
+            </button>
+        </div>
+
+        <div>
+            <span class="label">Policy Number:</span>
+            <span id="policyNumber"></span>
+        </div>
+
+        <div>
+            <span class="label">Amount:</span>
+            ₹<span id="amount"></span>
+        </div>
+
+    </div>
+
+    <button class="pay-btn" type="button" onclick="payNow()">
+        Pay Now
+    </button>
+
+    <br>
+
+    <button class="back-btn" type="button" onclick="goBack()">
+        Back
+    </button>
+
+</div>
+
+<script type="module">
+
+import {
+    db,
+    doc,
+    getDoc
+} from "./firebase.js";
+
+const policyNumber =
+sessionStorage.getItem("policyNumber");
+
+if(!policyNumber){
+    window.location.href = "index.html";
+}
+
+try{
+
+    const docRef =
+    doc(db,"policies",policyNumber);
+
+    const docSnap =
+    await getDoc(docRef);
+
+    if(!docSnap.exists()){
+        alert("Policy Not Found");
+        window.location.href="index.html";
+    }
+
+    const data =
+    docSnap.data();
+
+    document.getElementById("customerName").innerText =
+    data.customer;
+
+    document.getElementById("policyNumber").innerText =
+    data.policy;
+
+    document.getElementById("amount").innerText =
+    data.amount;
+
+    document.getElementById("upiId").innerText =
+    data.upi;
+
+    const upiString =
+    `upi://pay?pa=${data.upi}&pn=${encodeURIComponent(data.customer)}&am=${data.amount}&cu=INR`;
+
+    document.getElementById("qrCode").src =
+    "https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=" +
+    encodeURIComponent(upiString);
+
+    document.getElementById("loading").style.display="none";
+    document.getElementById("detailsBox").style.display="block";
+    document.getElementById("qrCode").style.display="inline-block";
+
+}
+catch(error){
+
+    console.error(error);
+
+    alert("Unable to fetch policy details");
+
+}
+
+window.copyUPI = function(){
+
+    const upi =
+    document.getElementById("upiId").innerText;
+
+    navigator.clipboard.writeText(upi);
+
+    alert("UPI ID Copied");
+
+}
+
+window.payNow = function(){
+
+    const upi =
+    document.getElementById("upiId").innerText;
+
+    const amount =
+    document.getElementById("amount").innerText;
+
+    window.location.href =
+    `upi://pay?pa=${upi}&pn=AxisMax&am=${amount}&cu=INR`;
+
+}
+
+window.goBack = function(){
+
+    window.location.href="index.html";
+
+}
+
+</script>
+
+</body>
+</html>

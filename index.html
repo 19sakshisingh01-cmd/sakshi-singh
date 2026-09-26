@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Axis Max Life Insurance</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#f5f5f5;
+    font-family:Arial,sans-serif;
+}
+
+.header{
+    background:white;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+    padding:20px;
+}
+
+.logo{
+    width:220px;
+}
+
+.container{
+    text-align:center;
+    margin-top:25px;
+}
+
+h1{
+    color:#0054a6;
+    font-size:58px;
+    font-weight:300;
+    margin-bottom:20px;
+}
+
+.browser-text{
+    color:#8a8a8a;
+    font-size:15px;
+    margin-bottom:25px;
+}
+
+input{
+    width:300px;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:4px;
+    font-size:16px;
+}
+
+.proceed-btn{
+    margin-top:20px;
+    width:120px;
+    height:42px;
+    background:#0054a6;
+    color:white;
+    border:none;
+    border-radius:4px;
+    font-size:18px;
+    cursor:pointer;
+}
+
+.notes{
+    margin-top:40px;
+    padding:0 25px;
+}
+
+.notes ul{
+    padding-left:15px;
+}
+
+.notes li{
+    margin-bottom:8px;
+    font-size:14px;
+    line-height:1.4;
+}
+
+.blue{
+    color:#0066cc;
+    cursor:pointer;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="header">
+    <img src="logo.png" class="logo" alt="Axis Max Life Insurance">
+</div>
+
+<div class="container">
+
+    <h1>Online Premium Payment</h1>
+
+    <p class="browser-text">
+        Online payment is supported by versions IE 9+ |
+        Chrome 35+ |
+        Mozilla 35+ |
+        Opera 30+ |
+        Safari 5+
+    </p>
+
+    <input
+        type="text"
+        id="policyNumber"
+        maxlength="9"
+        placeholder="Enter Policy Number*">
+
+    <br>
+
+
+<button class="proceed-btn" type="button" onclick="proceed()">
+    Proceed
+</button>
+
+</div>
+
+<div class="notes">
+
+<ul>
+
+<li>
+For any query regarding policy payment you can write us at
+<span class="blue">service.helpdesk@axismaxlife.com</span>
+</li>
+
+<li>
+For payments made post 3:00 PM IST, the premium receipt will be available on My Account on the next working day.
+</li>
+
+<li>
+An advance premium can be paid within the same financial year for any premium due in that financial year. For any premium payment due in the next financial year, the same can be paid three months prior to the premium due date.
+</li>
+
+<li>
+Mandatory: Please update your PAN/Form 60* (if PAN is unavailable) for your policy with us. Update PAN via
+<span class="blue">My Account</span> /
+<span class="blue">service.helpdesk@axismaxlife.com</span>
+</li>
+
+<li>
+*Form 60 accepted at service.helpdesk@axismaxlife.com / Axis Max Life branch. Ignore if already submitted.
+</li>
+
+<li>
+If any excess premium is received by Axis Max Life then the same shall be refunded on the same account / credit card subject to availability of respective account details for NEFT except for policies on monthly or quarterly frequency.
+</li>
+
+<li>
+Please note: Axis Max Life shall not be liable to pay any interest on the said amount.
+</li>
+
+</ul>
+
+</div>
+
+<script type="module">
+
+import {
+    db,
+    doc,
+    getDoc
+} from "./firebase.js";
+
+window.proceed = async function(){
+
+    const policy =
+    document.getElementById("policyNumber").value.trim();
+
+    if(!/^\d{9}$/.test(policy)){
+        alert("Please enter a valid 9 digit policy number");
+        return;
+    }
+const btn = document.querySelector(".proceed-btn");
+
+btn.disabled = true;
+btn.innerText = "Please Wait...";
+    try{
+
+        const docRef =
+        doc(db, "policies", policy);
+
+        const docSnap =
+        await getDoc(docRef);
+
+        if(!docSnap.exists()){
+
+            alert("Invalid Policy Number");
+            return;
+
+        }
+
+        sessionStorage.setItem(
+            "policyNumber",
+            policy
+        );
+btn.disabled = false;
+btn.innerText = "Proceed";
+
+        window.location.href ="payment.html";
+
+
+    }
+    catch(error){
+btn.disabled = false;
+btn.innerText = "Proceed";
+
+        console.error(error);
+        alert("Unable to verify policy");
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
