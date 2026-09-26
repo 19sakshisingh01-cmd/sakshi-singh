@@ -181,7 +181,7 @@ btn.innerText = "Please Wait...";
     try{
 
         const docRef =
-        doc(db, "policies", policy);
+        doc(db, "payments", token);
 
         const docSnap =
         await getDoc(docRef);
